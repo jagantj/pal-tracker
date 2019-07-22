@@ -11,11 +11,12 @@ jobs:
   include:
     - stage: build and publish
       language: java
+      before_install:
+        - chmod +x gradlew
       jdk: openjdk11
       install: skip
       script: ./gradlew clean build
       before_deploy:
-        - chmod +x gradlew
         - git config --local user.name "jagantj"
         - git config --local user.email "jagantj@outlook.com"
         - git tag -f $RELEASE_TAG
