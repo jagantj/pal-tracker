@@ -13,7 +13,6 @@ jobs:
       before_install:
         - chmod +x gradlew
       jdk: openjdk11
-      sudo: required
       addons:
         mariadb: '10.2'
       install: skip
