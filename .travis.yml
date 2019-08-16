@@ -10,6 +10,8 @@ jobs:
   include:
     - stage: build and publish
       language: java
+      before_install:
+        - chmod +x gradlew
       jdk: openjdk11
       addons:
         mariadb: '10.2'
