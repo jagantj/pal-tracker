@@ -24,7 +24,7 @@ jobs:
       before_deploy:
         - git config --local user.name "jagantj"
         - git config --local user.email "jagantj@outlook.com"
-        - git tag -f $RELEASE_TAG
+        - git tag -f $RELEASE_TAGm
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
@@ -47,6 +47,7 @@ jobs:
       before_deploy:
         - echo "Deploying $RELEASE_TAG to Cloud Foundry"
       before_script:
+        - chmod +x scripts/migrate-databases.sh
         - cf login -a $CF_API_URL -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE
         - scripts/migrate-databases.sh pal-tracker .
       deploy:
