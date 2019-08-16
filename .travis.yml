@@ -20,8 +20,8 @@ jobs:
         - flyway-*/flyway -url="jdbc:mysql://localhost:3306/tracker_test" -locations=filesystem:databases/tracker -user=tracker -password= clean migrate
       script: ./gradlew clean build
       before_deploy:
-        - git config --local user.name "Travis CI"
-        - git config --local user.email "travis@example.com"
+        - git config --local user.name "jagantj"
+        - git config --local user.email "jagantj@outlook.com"
         - git tag -f $RELEASE_TAG
       deploy:
         provider: releases
@@ -31,6 +31,7 @@ jobs:
     - stage: deploy to cf
       language: java
       before_install:
+        - chmod +x gradlew
         - wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
         - echo "deb https://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
         - sudo apt-get update
