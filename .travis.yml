@@ -32,6 +32,7 @@ jobs:
         skip_cleanup: true
     - stage: deploy to cf
       language: java
+      jdk: openjdk11
       before_install:
         - chmod +x gradlew
         - wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
