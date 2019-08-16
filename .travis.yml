@@ -24,7 +24,7 @@ jobs:
       before_deploy:
         - git config --local user.name "jagantj"
         - git config --local user.email "jagantj@outlook.com"
-        - git tag -f $RELEASE_TAGm
+        - git tag -f $RELEASE_TAG
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN
