@@ -1,4 +1,3 @@
-import
 import org.flywaydb.gradle.task.FlywayMigrateTask
 
 buildscript {
