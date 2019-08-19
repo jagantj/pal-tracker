@@ -16,20 +16,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
+
 @RestController
 @RequestMapping("/time-entries")
 public class TimeEntryController {
 
     private final TimeEntryRepository timeEntryRepository;
+    private final DistributionSummary distributionSummary;
+
+    private final Counter counter;
 
     @Autowired
-    public TimeEntryController(TimeEntryRepository timeEntryRepository) {
+    public TimeEntryController(TimeEntryRepository timeEntryRepository, MeterRegistry meterRegistry) {
         this.timeEntryRepository = timeEntryRepository;
+        distributionSummary = meterRegistry.summary("timeEntry.summary");
+        counter = meterRegistry.counter("timeEntry.actionCounter");
     }
 
     @PostMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity create(@RequestBody TimeEntry timeEntryToCreate) {
-        return new ResponseEntity(timeEntryRepository.create(timeEntryToCreate), HttpStatus.CREATED);
+        final TimeEntry timeEntry = timeEntryRepository.create(timeEntryToCreate);
+        counter.increment();
+        distributionSummary.record(timeEntryRepository.list().size());
+        return new ResponseEntity(timeEntry, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "{timeEntryId}", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -40,6 +52,7 @@ public class TimeEntryController {
 
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<List<TimeEntry>> list() {
+        counter.increment();
         final List<TimeEntry> timeEntries = timeEntryRepository.list();
         return new ResponseEntity<>(timeEntries, HttpStatus.OK);
     }
@@ -53,11 +66,17 @@ public class TimeEntryController {
     @DeleteMapping(value = "{timeEntryId}", produces = APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity delete(@PathVariable long timeEntryId) {
         timeEntryRepository.delete(timeEntryId);
+        counter.increment();
+        distributionSummary.record(timeEntryRepository.list().size());
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     private ResponseEntity createOkOrNotFountResponseEntity(TimeEntry timeEntry) {
-        return timeEntry != null ? new ResponseEntity<>(timeEntry, HttpStatus.OK)
-            : new ResponseEntity(HttpStatus.NOT_FOUND);
+        if (timeEntry != null) {
+            counter.increment();
+            return new ResponseEntity<>(timeEntry, HttpStatus.OK);
+        } else {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
     }
 }
